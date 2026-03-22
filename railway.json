@@ -13,7 +13,7 @@
   "environment": [
     {
       "variable": "PORT",
-      "value": "8080"
+      "value": "3000"
     }
   ]
 }
