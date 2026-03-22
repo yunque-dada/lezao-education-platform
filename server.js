@@ -145,7 +145,8 @@ if (!fs.existsSync(path.join(uploadsDir, 'projects'))) fs.mkdirSync(path.join(up
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+// 服务静态文件（HTML, CSS, JS等）
+app.use(express.static(__dirname));
 app.use('/uploads', express.static(uploadsDir));
 
 // 根路径 - Railway健康检查
