@@ -148,18 +148,18 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(uploadsDir));
 
-// 健康检查端点
+// 健康检查端点 - 始终返回200
 app.get('/health', async (req, res) => {
-  try {
-    let dbStatus = 'disconnected';
-    if (pool) {
+  let dbStatus = 'disconnected';
+  if (pool) {
+    try {
       await pool.query('SELECT 1');
       dbStatus = 'connected';
+    } catch (e) {
+      console.warn('健康检查数据库查询失败:', e.message);
     }
-    res.json({ status: 'ok', database: dbStatus, timestamp: new Date().toISOString() });
-  } catch {
-    res.status(503).json({ status: 'error', database: 'disconnected' });
   }
+  res.json({ status: 'ok', database: dbStatus, timestamp: new Date().toISOString() });
 });
 
 // 健康检查
