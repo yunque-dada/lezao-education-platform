@@ -148,6 +148,11 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(uploadsDir));
 
+// 根路径 - Railway健康检查
+app.get('/', (req, res) => {
+  res.send('Education Platform API Running');
+});
+
 // 健康检查端点 - 始终返回200
 app.get('/health', async (req, res) => {
   let dbStatus = 'disconnected';
