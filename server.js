@@ -148,6 +148,20 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(uploadsDir));
 
+// 健康检查端点
+app.get('/health', async (req, res) => {
+  try {
+    let dbStatus = 'disconnected';
+    if (pool) {
+      await pool.query('SELECT 1');
+      dbStatus = 'connected';
+    }
+    res.json({ status: 'ok', database: dbStatus, timestamp: new Date().toISOString() });
+  } catch {
+    res.status(503).json({ status: 'error', database: 'disconnected' });
+  }
+});
+
 // 健康检查
 app.get('/api/health', (req, res) => res.json({status:'ok', time:new Date()}));
 app.get('/', (req, res) => res.send('Education Platform API Running'));
