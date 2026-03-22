@@ -9,14 +9,24 @@ const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'education-platform-secret-key-2024';
 
 // 检查是否配置了数据库
-const hasDatabase = !!process.env.DATABASE_URL;
+const DATABASE_URL = process.env.DATABASE_URL;
+const hasDatabase = !!DATABASE_URL;
 
-// Neon PostgreSQL 连接配置（仅在有 DATABASE_URL 时使用）
+// PostgreSQL 连接配置
 let pool = null;
 if (hasDatabase) {
+  console.log('🔗 正在连接数据库...');
   pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    connectionString: DATABASE_URL,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000,
+  });
+  
+  // 测试数据库连接
+  pool.on('error', (err) => {
+    console.error('⚠️ 数据库连接错误:', err.message);
   });
 }
 
@@ -24,63 +34,81 @@ if (hasDatabase) {
 async function initDatabase() {
   if (!hasDatabase) {
     console.log('⚠️ 未配置 DATABASE_URL，使用本地存储模式（开发模式）');
-    return;
+    console.log('💡 生产部署请在 Railway 上添加 PostgreSQL 插件并设置 DATABASE_URL');
+    return false;
   }
   
-  const client = await pool.connect();
   try {
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        username TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        role TEXT DEFAULT 'student',
-        nickname TEXT,
-        avatar TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-      CREATE TABLE IF NOT EXISTS courses (
-        id SERIAL PRIMARY KEY,
-        title TEXT NOT NULL,
-        description TEXT,
-        cover_image TEXT,
-        teacher_id INTEGER,
-        duration INTEGER DEFAULT 0,
-        level TEXT DEFAULT '入门',
-        status TEXT DEFAULT 'draft',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-      CREATE TABLE IF NOT EXISTS enrollments (
-        id SERIAL PRIMARY KEY,
-        student_id INTEGER NOT NULL,
-        course_id INTEGER NOT NULL,
-        progress INTEGER DEFAULT 0,
-        status TEXT DEFAULT 'enrolled',
-        enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-      CREATE TABLE IF NOT EXISTS projects (
-        id SERIAL PRIMARY KEY,
-        user_id INTEGER NOT NULL,
-        course_id INTEGER,
-        name TEXT NOT NULL,
-        file_path TEXT,
-        cover_path TEXT,
-        description TEXT,
-        status TEXT DEFAULT 'draft',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-    console.log('数据库表初始化完成');
-  } finally {
-    client.release();
+    console.log('📦 正在初始化数据库表...');
+    const client = await pool.connect();
+    try {
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS users (
+          id SERIAL PRIMARY KEY,
+          username TEXT UNIQUE NOT NULL,
+          password TEXT NOT NULL,
+          role TEXT DEFAULT 'student',
+          nickname TEXT,
+          avatar TEXT,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS courses (
+          id SERIAL PRIMARY KEY,
+          title TEXT NOT NULL,
+          description TEXT,
+          cover_image TEXT,
+          teacher_id INTEGER,
+          duration INTEGER DEFAULT 0,
+          level TEXT DEFAULT '入门',
+          status TEXT DEFAULT 'draft',
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS enrollments (
+          id SERIAL PRIMARY KEY,
+          student_id INTEGER NOT NULL,
+          course_id INTEGER NOT NULL,
+          progress INTEGER DEFAULT 0,
+          status TEXT DEFAULT 'enrolled',
+          enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS projects (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER NOT NULL,
+          course_id INTEGER,
+          name TEXT NOT NULL,
+          file_path TEXT,
+          cover_path TEXT,
+          description TEXT,
+          status TEXT DEFAULT 'draft',
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+      console.log('✅ 数据库表初始化完成');
+      return true;
+    } finally {
+      client.release();
+    }
+  } catch (err) {
+    console.error('❌ 数据库初始化失败:', err.message);
+    console.error('💡 请检查 Railway 上的 DATABASE_URL 环境变量是否正确');
+    return false;
   }
 }
 
 const bcrypt = require('bcryptjs');
 
 async function initDefaultData() {
+  if (!hasDatabase || !pool) {
+    console.log('⏭️ 跳过默认数据初始化（无数据库）');
+    return;
+  }
+  
   try {
+    // 测试连接
+    await pool.query('SELECT 1');
+    console.log('✅ 数据库连接测试成功');
+    
     // 创建默认管理员
     const adminResult = await pool.query("SELECT * FROM users WHERE username = 'admin'");
     if (adminResult.rows.length === 0) {
@@ -89,7 +117,7 @@ async function initDefaultData() {
         'INSERT INTO users (username, password, role, nickname) VALUES ($1, $2, $3, $4)',
         ['admin', hash, 'admin', '管理员']
       );
-      console.log('默认管理员: admin / 123456');
+      console.log('✅ 默认管理员: admin / 123456');
     }
 
     // 创建示例课程
@@ -103,11 +131,11 @@ async function initDefaultData() {
         "INSERT INTO courses (title, description, level, duration, status) VALUES ($1, $2, $3, $4, $5)",
         ['Python基础', 'Python编程入门，学习变量、循环、函数等基础概念', '入门', 30, 'published']
       );
-      console.log('示例课程已创建');
+      console.log('✅ 示例课程已创建');
     }
-    console.log('数据库初始化完成');
+    console.log('✅ 数据库初始化完成');
   } catch (err) {
-    console.error('初始化数据失败:', err);
+    console.error('❌ 初始化数据失败:', err.message);
   }
 }
 
@@ -443,15 +471,35 @@ app.put('/api/teacher/projects/:id', requireTeacher, async (req, res) => {
 
 // 启动服务器
 async function startServer() {
+  console.log('🚀 正在启动教育平台服务...');
+  console.log(`📍 监听端口: ${PORT}`);
+  console.log(`🌍 环境: ${process.env.NODE_ENV || 'development'}`);
+  
   try {
-    await initDatabase();
-    await initDefaultData();
+    const dbReady = await initDatabase();
+    
+    if (dbReady) {
+      await initDefaultData();
+    } else {
+      console.log('⚠️ 服务运行在无数据库模式，部分功能可能不可用');
+    }
+    
     app.listen(PORT, '0.0.0.0', () => {
-      console.log('教育平台服务已启动: http://0.0.0.0:' + PORT);
+      console.log('='.repeat(50));
+      console.log('✅ 教育平台服务已启动!');
+      console.log(`🌐 访问地址: http://0.0.0.0:${PORT}`);
+      console.log(`🔐 健康检查: http://0.0.0.0:${PORT}/api/health`);
+      console.log('='.repeat(50));
     });
   } catch (err) {
-    console.error('启动失败:', err);
-    process.exit(1);
+    console.error('❌ 启动失败:', err.message);
+    console.log('⚠️ 尝试启动服务（无数据库模式）...');
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log('='.repeat(50));
+      console.log('⚠️ 教育平台服务已启动（无数据库模式）');
+      console.log(`🌐 访问地址: http://0.0.0.0:${PORT}`);
+      console.log('='.repeat(50));
+    });
   }
 }
 
