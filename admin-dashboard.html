@@ -1,0 +1,1941 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>乐造AI管理后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1f2937;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0; top: 0;
+            width: 260px; height: 100vh;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .logo {
+            padding: 24px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center; gap: 12px;
+        }
+        
+        .logo-icon {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            border-radius: 10px;
+            display: flex;
+            align-items: center; justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .nav {
+            flex: 1;
+            padding: 16px 12px;
+            overflow-y: auto;
+        }
+        
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0 12px;
+            margin-bottom: 8px;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            color: #4b5563;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .nav-item:hover {
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+        
+        .nav-item.active {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+        
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+        
+        .nav-badge {
+            margin-left: auto;
+            background: #ef4444;
+            color: white;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        
+        /* User Card */
+        .user-card {
+            padding: 16px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .user-card:hover {
+            background: #f3f4f6;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .user-role {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            min-height: 100vh;
+            background: #f8fafc;
+        }
+        
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #9ca3af;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .search-input {
+            width: 280px;
+            padding: 10px 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            background: #f9fafb;
+            transition: all 0.2s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: none;
+            background: #f3f4f6;
+            color: #6b7280;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .icon-btn:hover {
+            background: #e5e7eb;
+            color: #1f2937;
+        }
+        
+        .icon-btn .badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 18px;
+            height: 18px;
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            padding: 24px 32px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+        }
+        
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .stat-icon.blue { background: #eff6ff; color: #2563eb; }
+        .stat-icon.green { background: #ecfdf5; color: #10b981; }
+        .stat-icon.orange { background: #fff7ed; color: #f59e0b; }
+        .stat-icon.purple { background: #f5f3ff; color: #8b5cf6; }
+        
+        .stat-trend {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        
+        .stat-trend.up {
+            background: #ecfdf5;
+            color: #10b981;
+        }
+        
+        .stat-trend.down {
+            background: #fef2f2;
+            color: #ef4444;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            padding: 0 32px 24px;
+        }
+        
+        .quick-action {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .quick-action:hover {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+        
+        .quick-action-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #4b5563;
+            transition: all 0.2s;
+        }
+        
+        .quick-action:hover .quick-action-icon {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .quick-action-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        /* Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            padding: 0 32px 24px;
+        }
+        
+        .card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .card-body {
+            padding: 24px;
+        }
+        
+        /* Chart */
+        .chart-area {
+            height: 240px;
+            position: relative;
+        }
+        
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th {
+            text-align: left;
+            padding: 14px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: #f9fafb;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .data-table td {
+            padding: 16px;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 14px;
+            color: #4b5563;
+        }
+        
+        .data-table tr:hover td {
+            background: #f9fafb;
+        }
+        
+        .table-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .table-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .table-name {
+            font-weight: 500;
+            color: #1f2937;
+        }
+        
+        .table-email {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+        
+        .progress-wrap {
+            width: 100px;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2563eb, #3b82f6);
+            border-radius: 3px;
+        }
+        
+        .progress-text {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-badge.active {
+            background: #ecfdf5;
+            color: #059669;
+        }
+        
+        .status-badge.pending {
+            background: #fff7ed;
+            color: #d97706;
+        }
+        
+        /* Donut Chart */
+        .donut-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 20px 0;
+        }
+        
+        .donut-chart {
+            width: 160px;
+            height: 160px;
+            position: relative;
+        }
+        
+        .donut-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        
+        .donut-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .donut-label {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+        
+        .donut-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: #4b5563;
+        }
+        
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+        }
+        
+        .legend-value {
+            margin-left: auto;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        
+        /* Page Content */
+        .page-content { display: none; }
+        .page-content.active { display: block; }
+        
+        /* Table Toolbar */
+        .table-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #fafafa;
+        }
+        
+        .toolbar-left { display: flex; align-items: center; gap: 12px; }
+        .toolbar-right { display: flex; align-items: center; gap: 12px; }
+        
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 13px;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .filter-select:focus { outline: none; border-color: #2563eb; }
+        
+        .table-search {
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 13px;
+            width: 200px;
+        }
+        
+        .table-search:focus { outline: none; border-color: #2563eb; }
+        
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+        
+        .btn-danger { background: #fef2f2; color: #dc2626; }
+        .btn-danger:hover { background: #fee2e2; }
+        
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-icon:hover { background: #f3f4f6; color: #1f2937; }
+        .btn-icon.danger:hover { background: #fef2f2; color: #dc2626; }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow: hidden;
+            transform: scale(0.9);
+            transition: all 0.3s;
+        }
+        
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+        
+        .modal-lg { max-width: 700px; }
+        
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .modal-title { font-size: 18px; font-weight: 600; color: #1f2937; }
+        
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .modal-close:hover { background: #f3f4f6; }
+        
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            max-height: calc(90vh - 140px);
+        }
+        
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        /* Form */
+        .form-group { margin-bottom: 20px; }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .form-select:focus { outline: none; border-color: #2563eb; }
+        
+        /* Rating */
+        .rating { display: flex; gap: 4px; }
+        
+        .rating-star {
+            font-size: 20px;
+            color: #d1d5db;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .rating-star.active { color: #f59e0b; }
+        .rating-star:hover { color: #f59e0b; }
+        
+        /* Empty State */
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+        }
+        
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: #f3f4f6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #9ca3af;
+        }
+        
+        .empty-title { font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 8px; }
+        .empty-desc { font-size: 14px; color: #6b7280; }
+        
+        /* Status Badge Variants */
+        .status-badge.inactive { background: #fef2f2; color: #dc2626; }
+        .status-badge.approved { background: #ecfdf5; color: #059669; }
+        .status-badge.rejected { background: #fef2f2; color: #dc2626; }
+        
+        /* Checkbox */
+        .checkbox-wrapper { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #d1d5db;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .checkbox.checked { background: #2563eb; border-color: #2563eb; color: white; }
+        
+        /* Mobile */
+        .mobile-toggle {
+            display: none;
+        }
+        
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .mobile-toggle {
+                display: flex;
+            }
+            .stats-grid, .quick-actions, .content-grid {
+                grid-template-columns: 1fr;
+                padding: 16px;
+            }
+            .search-input {
+                width: 180px;
+            }
+            .page-content { padding: 16px; }
+            .table-toolbar { flex-direction: column; gap: 12px; }
+            .toolbar-left, .toolbar-right { width: 100%; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Toggle -->
+    <button class="mobile-toggle icon-btn" style="position:fixed;top:16px;left:16px;z-index:200;" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo">
+            <div class="logo-icon">🎓</div>
+            <span class="logo-text">乐造AI</span>
+        </div>
+        
+        <nav class="nav">
+            <div class="nav-section">
+                <div class="nav-section-title">概览</div>
+                <a href="#dashboard" class="nav-item active" data-page="dashboard" onclick="navigateTo('dashboard'); window.location.hash='dashboard'; return false;">
+                    <i class="fas fa-th-large"></i>
+                    <span>仪表盘</span>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">管理</div>
+                <a href="#students" class="nav-item" data-page="students" onclick="navigateTo('students'); window.location.hash='students'; return false;">
+                    <i class="fas fa-user-graduate"></i>
+                    <span>学生管理</span>
+                </a>
+                <a href="#teachers" class="nav-item" data-page="teachers" onclick="navigateTo('teachers'); window.location.hash='teachers'; return false;">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <span>老师管理</span>
+                </a>
+                <a href="#courses" class="nav-item" data-page="courses" onclick="navigateTo('courses'); window.location.hash='courses'; return false;">
+                    <i class="fas fa-book"></i>
+                    <span>课程管理</span>
+                </a>
+                <a href="#works" class="nav-item" data-page="works" onclick="navigateTo('works'); window.location.hash='works'; return false;">
+                    <i class="fas fa-gamepad"></i>
+                    <span>作品管理</span>
+                    <span class="nav-badge" id="works-badge" style="display:none;">0</span>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="#settings" class="nav-item" data-page="settings" onclick="navigateTo('settings'); window.location.hash='settings'; return false;">
+                    <i class="fas fa-cog"></i>
+                    <span>系统设置</span>
+                </a>
+            </div>
+        </nav>
+        
+        <div class="user-card" onclick="handleLogout()">
+            <div class="user-avatar">管</div>
+            <div class="user-info">
+                <div class="user-name">超级管理员</div>
+                <div class="user-role">admin</div>
+            </div>
+            <i class="fas fa-sign-out-alt" style="color: #9ca3af;"></i>
+        </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <h1 class="page-title" id="page-title">仪表盘</h1>
+                <div class="breadcrumb">
+                    <span>乐造AI</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span id="breadcrumb">仪表盘</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <input type="text" class="search-input" placeholder="搜索..." id="global-search">
+                <button class="icon-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge">3</span>
+                </button>
+            </div>
+        </header>
+        
+        <!-- Dashboard Page -->
+        <div class="page-content active" id="page-dashboard">
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon blue"><i class="fas fa-user-graduate"></i></div>
+                        <span class="stat-trend up"><i class="fas fa-arrow-up"></i> 12%</span>
+                    </div>
+                    <div class="stat-value" id="stat-students">0</div>
+                    <div class="stat-label">学生总数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon green"><i class="fas fa-chalkboard-teacher"></i></div>
+                        <span class="stat-trend up"><i class="fas fa-arrow-up"></i> 5%</span>
+                    </div>
+                    <div class="stat-value" id="stat-teachers">0</div>
+                    <div class="stat-label">老师总数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon orange"><i class="fas fa-book"></i></div>
+                        <span class="stat-trend up"><i class="fas fa-arrow-up"></i> 8%</span>
+                    </div>
+                    <div class="stat-value" id="stat-courses">0</div>
+                    <div class="stat-label">课程资源</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon purple"><i class="fas fa-gamepad"></i></div>
+                        <span class="stat-trend up"><i class="fas fa-arrow-up"></i> 20%</span>
+                    </div>
+                    <div class="stat-value" id="stat-works">0</div>
+                    <div class="stat-label">作品总数</div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <div class="quick-action" onclick="showModal('student')">
+                    <div class="quick-action-icon"><i class="fas fa-user-plus"></i></div>
+                    <span class="quick-action-text">添加学生</span>
+                </div>
+                <div class="quick-action" onclick="showModal('teacher')">
+                    <div class="quick-action-icon"><i class="fas fa-user-tie"></i></div>
+                    <span class="quick-action-text">添加老师</span>
+                </div>
+                <div class="quick-action" onclick="showModal('course')">
+                    <div class="quick-action-icon"><i class="fas fa-plus-circle"></i></div>
+                    <span class="quick-action-text">添加课程</span>
+                </div>
+                <div class="quick-action" onclick="showModal('work')">
+                    <div class="quick-action-icon"><i class="fas fa-upload"></i></div>
+                    <span class="quick-action-text">上传作品</span>
+                </div>
+            </div>
+            
+            <!-- Content Grid -->
+            <div class="content-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">学生增长趋势</h3>
+                        <select class="filter-select" onchange="updateChart(this.value)">
+                            <option value="week">本周</option>
+                            <option value="month">本月</option>
+                            <option value="year">本年</option>
+                        </select>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-area">
+                            <svg viewBox="0 0 600 200" style="width: 100%; height: 100%;">
+                                <defs>
+                                    <linearGradient id="chartGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#2563eb;stop-opacity:0.3"/>
+                                        <stop offset="100%" style="stop-color:#2563eb;stop-opacity:0"/>
+                                    </linearGradient>
+                                </defs>
+                                <path d="M0,160 Q50,140 100,120 T200,100 T300,70 T400,50 T500,30 T600,20" 
+                                      fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round"/>
+                                <path d="M0,160 Q50,140 100,120 T200,100 T300,70 T400,50 T500,30 T600,20 L600,200 L0,200 Z" 
+                                      fill="url(#chartGrad)"/>
+                                <circle cx="0" cy="160" r="5" fill="#2563eb"/>
+                                <circle cx="100" cy="120" r="5" fill="#2563eb"/>
+                                <circle cx="200" cy="100" r="5" fill="#2563eb"/>
+                                <circle cx="300" cy="70" r="5" fill="#2563eb"/>
+                                <circle cx="400" cy="50" r="5" fill="#2563eb"/>
+                                <circle cx="500" cy="30" r="5" fill="#2563eb"/>
+                                <circle cx="600" cy="20" r="7" fill="#2563eb"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">课程分类</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="donut-wrap">
+                            <div class="donut-chart">
+                                <svg viewBox="0 0 100 100" style="transform: rotate(-90deg);">
+                                    <circle cx="50" cy="50" r="40" fill="none" stroke="#2563eb" stroke-width="16" stroke-dasharray="70 251" stroke-dashoffset="0"/>
+                                    <circle cx="50" cy="50" r="40" fill="none" stroke="#3b82f6" stroke-width="16" stroke-dasharray="60 251" stroke-dashoffset="-70"/>
+                                    <circle cx="50" cy="50" r="40" fill="none" stroke="#8b5cf6" stroke-width="16" stroke-dasharray="60 251" stroke-dashoffset="-130"/>
+                                    <circle cx="50" cy="50" r="40" fill="none" stroke="#10b981" stroke-width="16" stroke-dasharray="61 251" stroke-dashoffset="-190"/>
+                                </svg>
+                                <div class="donut-center">
+                                    <div class="donut-value" id="donut-total">0</div>
+                                    <div class="donut-label">课程</div>
+                                </div>
+                            </div>
+                            <div class="donut-legend">
+                                <div class="legend-item">
+                                    <div class="legend-dot" style="background: #2563eb;"></div>
+                                    <span>Scratch</span>
+                                    <span class="legend-value" id="legend-scratch">0%</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-dot" style="background: #3b82f6;"></div>
+                                    <span>Python</span>
+                                    <span class="legend-value" id="legend-python">0%</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-dot" style="background: #8b5cf6;"></div>
+                                    <span>Web前端</span>
+                                    <span class="legend-value" id="legend-web">0%</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-dot" style="background: #10b981;"></div>
+                                    <span>其他</span>
+                                    <span class="legend-value" id="legend-other">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Students Page -->
+        <div class="page-content" id="page-students">
+            <div class="card">
+                <div class="table-toolbar">
+                    <div class="toolbar-left">
+                        <input type="text" class="table-search" placeholder="搜索学生..." id="student-search" oninput="filterStudents()">
+                        <select class="filter-select" id="student-status-filter" onchange="filterStudents()">
+                            <option value="">全部状态</option>
+                            <option value="active">学习中</option>
+                            <option value="inactive">已停用</option>
+                        </select>
+                    </div>
+                    <div class="toolbar-right">
+                        <button class="btn btn-primary" onclick="showModal('student')">
+                            <i class="fas fa-plus"></i> 添加学生
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>学生</th>
+                                <th>性别</th>
+                                <th>年龄</th>
+                                <th>电话</th>
+                                <th>班级</th>
+                                <th>进度</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="students-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Teachers Page -->
+        <div class="page-content" id="page-teachers">
+            <div class="card">
+                <div class="table-toolbar">
+                    <div class="toolbar-left">
+                        <input type="text" class="table-search" placeholder="搜索老师..." id="teacher-search" oninput="filterTeachers()">
+                        <select class="filter-select" id="teacher-status-filter" onchange="filterTeachers()">
+                            <option value="">全部状态</option>
+                            <option value="active">在职</option>
+                            <option value="inactive">已离职</option>
+                        </select>
+                    </div>
+                    <div class="toolbar-right">
+                        <button class="btn btn-primary" onclick="showModal('teacher')">
+                            <i class="fas fa-plus"></i> 添加老师
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>老师</th>
+                                <th>性别</th>
+                                <th>电话</th>
+                                <th>简介</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teachers-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Courses Page -->
+        <div class="page-content" id="page-courses">
+            <div class="card">
+                <div class="table-toolbar">
+                    <div class="toolbar-left">
+                        <input type="text" class="table-search" placeholder="搜索课程..." id="course-search" oninput="filterCourses()">
+                        <select class="filter-select" id="course-category-filter" onchange="filterCourses()">
+                            <option value="">全部分类</option>
+                            <option value="scratch">Scratch</option>
+                            <option value="python">Python</option>
+                            <option value="web">Web前端</option>
+                        </select>
+                    </div>
+                    <div class="toolbar-right">
+                        <button class="btn btn-primary" onclick="showModal('course')">
+                            <i class="fas fa-plus"></i> 添加课程
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>课程名称</th>
+                                <th>分类</th>
+                                <th>难度</th>
+                                <th>授课老师</th>
+                                <th>学生数</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="courses-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Works Page -->
+        <div class="page-content" id="page-works">
+            <div class="card">
+                <div class="table-toolbar">
+                    <div class="toolbar-left">
+                        <input type="text" class="table-search" placeholder="搜索作品..." id="work-search" oninput="filterWorks()">
+                        <select class="filter-select" id="work-status-filter" onchange="filterWorks()">
+                            <option value="">全部状态</option>
+                            <option value="pending">待审核</option>
+                            <option value="approved">已通过</option>
+                            <option value="rejected">已拒绝</option>
+                        </select>
+                        <select class="filter-select" id="work-type-filter" onchange="filterWorks()">
+                            <option value="">全部类型</option>
+                            <option value="scratch">Scratch</option>
+                            <option value="python">Python</option>
+                            <option value="web">Web前端</option>
+                        </select>
+                    </div>
+                    <div class="toolbar-right">
+                        <button class="btn btn-primary" onclick="showModal('work')">
+                            <i class="fas fa-plus"></i> 添加作品
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>作品名称</th>
+                                <th>类型</th>
+                                <th>学生</th>
+                                <th>评分</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="works-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Settings Page -->
+        <div class="page-content" id="page-settings">
+            <div class="card" style="max-width: 600px;">
+                <div class="card-header">
+                    <h3 class="card-title">系统设置</h3>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label class="form-label">用户名</label>
+                        <input type="text" class="form-input" id="settings-username" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">姓名</label>
+                        <input type="text" class="form-input" id="settings-name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">新密码（留空则不修改）</label>
+                        <input type="password" class="form-input" id="settings-password" placeholder="请输入新密码">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">确认密码</label>
+                        <input type="password" class="form-input" id="settings-confirm-password" placeholder="请确认新密码">
+                    </div>
+                    <button class="btn btn-primary" onclick="saveSettings()">
+                        <i class="fas fa-save"></i> 保存设置
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">添加</h3>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                <button class="btn btn-primary" id="modal-submit" onclick="submitModal()">保存</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Confirm Modal -->
+    <div class="modal-overlay" id="confirm-modal-overlay">
+        <div class="modal" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3 class="modal-title">确认删除</h3>
+                <button class="modal-close" onclick="closeConfirmModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-message">确定要删除该项吗？此操作无法撤销。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeConfirmModal()">取消</button>
+                <button class="btn btn-danger" id="confirm-delete-btn" onclick="confirmDelete()">删除</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/feishu-api.js"></script>
+    <script src="js/api-client.js"></script>
+    <script>
+        // 使用混合API
+        const StudentsAPI = HybridAPI.students;
+        const TeachersAPI = HybridAPI.teachers;
+        const CoursesAPI = HybridAPI.courses;
+        const WorksAPI = HybridAPI.works;
+        
+        // Current state
+        let currentPage = 'dashboard';
+        let currentEditId = null;
+        let currentDeleteId = null;
+        let currentDeleteType = null;
+        
+        // Page titles
+        const pageTitles = {
+            dashboard: '仪表盘',
+            students: '学生管理',
+            teachers: '老师管理',
+            courses: '课程管理',
+            works: '作品管理',
+            settings: '系统设置'
+        };
+        
+        // Hash routing
+        function handleHashChange() {
+            const hash = window.location.hash.slice(1) || 'dashboard';
+            navigateTo(hash);
+        }
+        
+        function navigateTo(page) {
+            currentPage = page;
+            
+            // Update nav active state
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.page === page) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Update page content
+            document.querySelectorAll('.page-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            const pageElement = document.getElementById('page-' + page);
+            if (pageElement) {
+                pageElement.classList.add('active');
+            }
+            
+            // Update header
+            document.getElementById('page-title').textContent = pageTitles[page] || '仪表盘';
+            document.getElementById('breadcrumb').textContent = pageTitles[page] || '仪表盘';
+            
+            // Load data for the page
+            loadPageData(page);
+            
+            // Close mobile sidebar
+            document.getElementById('sidebar').classList.remove('open');
+        }
+        
+        function loadPageData(page) {
+            switch(page) {
+                case 'dashboard':
+                    loadDashboardStats();
+                    break;
+                case 'students':
+                    renderStudentsTable();
+                    break;
+                case 'teachers':
+                    renderTeachersTable();
+                    break;
+                case 'courses':
+                    renderCoursesTable();
+                    break;
+                case 'works':
+                    renderWorksTable();
+                    break;
+                case 'settings':
+                    loadSettings();
+                    break;
+            }
+        }
+        
+        // Dashboard - 使用后端 API
+        async function loadDashboardStats() {
+            try {
+                // 尝试从后端获取数据
+                const [dashboardData, coursesData, usersData] = await Promise.all([
+                    APIClient.admin.getDashboard().catch(() => null),
+                    APIClient.courses.list().catch(() => []),
+                    APIClient.admin.getUsers().catch(() => [])
+                ]);
+                
+                if (dashboardData) {
+                    document.getElementById('stat-students').textContent = dashboardData.students || 0;
+                    document.getElementById('stat-teachers').textContent = dashboardData.teachers || 0;
+                    document.getElementById('stat-courses').textContent = dashboardData.totalCourses || 0;
+                    document.getElementById('stat-works').textContent = dashboardData.totalProjects || 0;
+                } else {
+                    // 降级到本地数据
+                    const students = LegacyAPI.students.list();
+                    const teachers = LegacyAPI.teachers.list();
+                    const courses = coursesData.length ? coursesData : LegacyAPI.courses.list();
+                    const works = LegacyAPI.works.list();
+                    
+                    document.getElementById('stat-students').textContent = students.length;
+                    document.getElementById('stat-teachers').textContent = teachers.length;
+                    document.getElementById('stat-courses').textContent = courses.length;
+                    document.getElementById('stat-works').textContent = works.length;
+                }
+                
+                document.getElementById('donut-total').textContent = coursesData.length || 0;
+                
+                // Update course category stats
+                const categories = { scratch: 0, python: 0, web: 0, other: 0 };
+                coursesData.forEach(c => {
+                    const cat = (c.category || c.title || '').toLowerCase();
+                    if (cat.includes('scratch')) categories.scratch++;
+                    else if (cat.includes('python')) categories.python++;
+                    else if (cat.includes('web')) categories.web++;
+                    else categories.other++;
+                });
+                
+                const total = coursesData.length || 1;
+                document.getElementById('legend-scratch').textContent = Math.round(categories.scratch / total * 100) + '%';
+                document.getElementById('legend-python').textContent = Math.round(categories.python / total * 100) + '%';
+                document.getElementById('legend-web').textContent = Math.round(categories.web / total * 100) + '%';
+                document.getElementById('legend-other').textContent = Math.round(categories.other / total * 100) + '%';
+                
+            } catch (err) {
+                console.error('加载仪表盘数据失败:', err);
+                // 降级到本地数据
+                const students = LegacyAPI.students.list();
+                const teachers = LegacyAPI.teachers.list();
+                const courses = LegacyAPI.courses.list();
+                const works = LegacyAPI.works.list();
+                
+                document.getElementById('stat-students').textContent = students.length;
+                document.getElementById('stat-teachers').textContent = teachers.length;
+                document.getElementById('stat-courses').textContent = courses.length;
+                document.getElementById('stat-works').textContent = works.length;
+            }
+        }
+        
+        function updateChart(period) {
+            console.log('Update chart:', period);
+        }
+        
+        // Students
+        function renderStudentsTable() {
+            const search = document.getElementById('student-search').value.toLowerCase();
+            const status = document.getElementById('student-status-filter').value;
+            let students = API.students.list();
+            
+            if (search) {
+                students = students.filter(s => s.name.toLowerCase().includes(search) || s.username.toLowerCase().includes(search) || (s.phone && s.phone.includes(search)));
+            }
+            
+            if (status) {
+                students = students.filter(s => s.status === status);
+            }
+            
+            const classes = ClassAPI.getAll();
+            const tbody = document.getElementById('students-table-body');
+            
+            if (students.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><div class="empty-icon"><i class="fas fa-user-graduate"></i></div><div class="empty-title">暂无学生</div></td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = students.map(s => {
+                const cls = classes.find(c => c.classId === s.classId);
+                return `<tr>
+                    <td><div class="table-user"><div class="table-avatar">${s.name.charAt(0)}</div><div><div class="table-name">${s.name}</div><div class="table-email">${s.username}</div></div></div></td>
+                    <td>${s.gender || '-'}</td>
+                    <td>${s.age || '-'}</td>
+                    <td>${s.phone || '-'}</td>
+                    <td>${cls ? cls.className : '-'}</td>
+                    <td><div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" style="width: ${s.progress || 0}%;"></div></div><div class="progress-text">${s.progress || 0}%</div></div></td>
+                    <td><span class="status-badge ${s.status === 'active' ? 'active' : 'inactive'}">${s.status === 'active' ? '学习中' : '已停用'}</span></td>
+                    <td><button class="btn-icon" onclick="editItem('student', '${s.studentId}')" title="编辑"><i class="fas fa-edit"></i></button><button class="btn-icon danger" onclick="deleteItem('student', '${s.studentId}')" title="删除"><i class="fas fa-trash"></i></button></td>
+                </tr>`;
+            }).join('');
+        }
+        
+        function filterStudents() { renderStudentsTable(); }
+        
+        // Teachers
+        function renderTeachersTable() {
+            const search = document.getElementById('teacher-search').value.toLowerCase();
+            const status = document.getElementById('teacher-status-filter').value;
+            let teachers = API.teachers.list();
+            
+            if (search) {
+                teachers = teachers.filter(t => t.name.toLowerCase().includes(search) || t.username.toLowerCase().includes(search) || (t.phone && t.phone.includes(search)));
+            }
+            
+            if (status) {
+                teachers = teachers.filter(t => t.status === status);
+            }
+            
+            const tbody = document.getElementById('teachers-table-body');
+            
+            if (teachers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="empty-icon"><i class="fas fa-chalkboard-teacher"></i></div><div class="empty-title">暂无老师</div></td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = teachers.map(t => `<tr>
+                <td><div class="table-user"><div class="table-avatar" style="background: linear-gradient(135deg, #10b981, #34d399);">${t.name.charAt(0)}</div><div><div class="table-name">${t.name}</div><div class="table-email">${t.username}</div></div></div></td>
+                <td>${t.gender || '-'}</td>
+                <td>${t.phone || '-'}</td>
+                <td>${t.intro || '-'}</td>
+                <td><span class="status-badge ${t.status === 'active' ? 'active' : 'inactive'}">${t.status === 'active' ? '在职' : '已离职'}</span></td>
+                <td><button class="btn-icon" onclick="editItem('teacher', '${t.teacherId}')" title="编辑"><i class="fas fa-edit"></i></button><button class="btn-icon danger" onclick="deleteItem('teacher', '${t.teacherId}')" title="删除"><i class="fas fa-trash"></i></button></td>
+            </tr>`).join('');
+        }
+        
+        function filterTeachers() { renderTeachersTable(); }
+        
+        // Courses
+        function renderCoursesTable() {
+            const search = document.getElementById('course-search').value.toLowerCase();
+            const category = document.getElementById('course-category-filter').value;
+            let courses = API.courses.list();
+            
+            if (search) {
+                courses = courses.filter(c => c.name.toLowerCase().includes(search) || c.description.toLowerCase().includes(search));
+            }
+            
+            if (category) {
+                courses = courses.filter(c => c.category === category);
+            }
+            
+            const teachers = API.teachers.list();
+            const tbody = document.getElementById('courses-table-body');
+            
+            if (courses.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><div class="empty-icon"><i class="fas fa-book"></i></div><div class="empty-title">暂无课程</div></td></tr>';
+                return;
+            }
+            
+            const categoryNames = { scratch: 'Scratch', python: 'Python', web: 'Web前端', lego: '乐高' };
+            tbody.innerHTML = courses.map(c => {
+                const teacher = teachers.find(t => t.teacherId === c.teacherId);
+                return `<tr>
+                    <td><div class="table-name">${c.name}</div></td>
+                    <td>${categoryNames[c.category] || c.category}</td>
+                    <td>${c.difficulty || '-'}</td>
+                    <td>${teacher ? teacher.name : '-'}</td>
+                    <td>${c.studentCount || 0}</td>
+                    <td><span class="status-badge ${c.status === 'active' ? 'active' : 'inactive'}">${c.status === 'active' ? '启用' : '禁用'}</span></td>
+                    <td><button class="btn-icon" onclick="editItem('course', '${c.courseId}')" title="编辑"><i class="fas fa-edit"></i></button><button class="btn-icon danger" onclick="deleteItem('course', '${c.courseId}')" title="删除"><i class="fas fa-trash"></i></button></td>
+                </tr>`;
+            }).join('');
+        }
+        
+        function filterCourses() { renderCoursesTable(); }
+        
+        // Works
+        function renderWorksTable() {
+            const search = document.getElementById('work-search').value.toLowerCase();
+            const status = document.getElementById('work-status-filter').value;
+            const type = document.getElementById('work-type-filter').value;
+            let works = API.works.list();
+            
+            if (search) {
+                works = works.filter(w => w.name.toLowerCase().includes(search) || (w.studentName && w.studentName.toLowerCase().includes(search)));
+            }
+            
+            if (status) works = works.filter(w => w.status === status);
+            if (type) works = works.filter(w => w.type === type);
+            
+            const students = API.students.list();
+            const tbody = document.getElementById('works-table-body');
+            
+            if (works.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="empty-icon"><i class="fas fa-gamepad"></i></div><div class="empty-title">暂无作品</div></td></tr>';
+                return;
+            }
+            
+            const typeNames = { scratch: 'Scratch', python: 'Python', web: 'Web前端' };
+            const statusNames = { pending: '待审核', approved: '已通过', rejected: '已拒绝' };
+            
+            tbody.innerHTML = works.map(w => {
+                const student = students.find(s => s.studentId === w.studentId);
+                return `<tr>
+                    <td><div class="table-name">${w.name}</div></td>
+                    <td>${typeNames[w.type] || w.type}</td>
+                    <td>${student ? student.name : (w.studentName || '-')}</td>
+                    <td><div class="rating">${[1,2,3,4,5].map(i => `<i class="fas fa-star rating-star ${i <= (w.score || 0) ? 'active' : ''}"></i>`).join('')}</div></td>
+                    <td><span class="status-badge ${w.status}">${statusNames[w.status] || w.status}</span></td>
+                    <td>${w.status === 'pending' ? `<button class="btn-icon" onclick="reviewWork('${w.workId}')" title="审核"><i class="fas fa-check"></i></button>` : ''}<button class="btn-icon" onclick="editItem('work', '${w.workId}')" title="编辑"><i class="fas fa-edit"></i></button><button class="btn-icon danger" onclick="deleteItem('work', '${w.workId}')" title="删除"><i class="fas fa-trash"></i></button></td>
+                </tr>`;
+            }).join('');
+            
+            const pendingCount = works.filter(w => w.status === 'pending').length;
+            const badge = document.getElementById('works-badge');
+            if (pendingCount > 0) { badge.style.display = 'block'; badge.textContent = pendingCount; }
+            else { badge.style.display = 'none'; }
+        }
+        
+        function filterWorks() { renderWorksTable(); }
+        
+        function reviewWork(workId) {
+            const work = API.works.get(workId);
+            if (!work) return;
+            
+            currentEditId = workId;
+            const students = API.students.list();
+            const student = students.find(s => s.studentId === work.studentId);
+            
+            let html = `<div class="form-group"><label class="form-label">作品名称</label><input type="text" class="form-input" value="${work.name}" readonly></div>
+                <div class="form-group"><label class="form-label">学生</label><input type="text" class="form-input" value="${student ? student.name : '-'}" readonly></div>
+                <div class="form-group"><label class="form-label">评分 (1-5)</label><div class="rating" id="review-rating">${[1,2,3,4,5].map(i => `<i class="fas fa-star rating-star ${i <= (work.score || 0) ? 'active' : ''}" data-score="${i}" onclick="setRating(${i})"></i>`).join('')}</div><input type="hidden" id="review-score" value="${work.score || 0}"></div>
+                <div class="form-group"><label class="form-label">评语</label><textarea class="form-input" id="review-comment" rows="3" placeholder="请输入评语">${work.comment || ''}</textarea></div>`;
+            
+            document.getElementById('modal-title').textContent = '审核作品';
+            document.getElementById('modal-body').innerHTML = html;
+            document.getElementById('modal-submit').textContent = '通过审核';
+            document.getElementById('modal-submit').onclick = function() { approveWork(); };
+            document.getElementById('modal-overlay').classList.add('active');
+        }
+        
+        function setRating(score) {
+            document.getElementById('review-score').value = score;
+            document.querySelectorAll('#review-rating .rating-star').forEach((star, i) => { star.classList.toggle('active', i < score); });
+        }
+        
+        function approveWork() {
+            const score = parseInt(document.getElementById('review-score').value) || 5;
+            const comment = document.getElementById('review-comment').value;
+            API.works.update(currentEditId, { status: 'approved', score, comment });
+            closeModal();
+            renderWorksTable();
+            loadDashboardStats();
+        }
+        
+        // Settings
+        function loadSettings() {
+            const auth = Storage.getAuth();
+            document.getElementById('settings-username').value = auth.username || '';
+            document.getElementById('settings-name').value = auth.name || '';
+        }
+        
+        function saveSettings() {
+            const name = document.getElementById('settings-name').value;
+            const password = document.getElementById('settings-password').value;
+            const confirmPassword = document.getElementById('settings-confirm-password').value;
+            
+            if (password && password !== confirmPassword) { alert('两次输入的密码不一致'); return; }
+            
+            const auth = Storage.getAuth();
+            const updateData = { name };
+            if (password) { updateData.password = password; }
+            LocalAPI.updateUser(auth.username, updateData);
+            alert('设置已保存');
+        }
+        
+        // Modal functions
+        function showModal(type, id) {
+            currentEditId = id;
+            const isEdit = id !== null;
+            let html = '', title = isEdit ? '编辑' : '添加', submitText = '保存';
+            
+            switch(type) {
+                case 'student':
+                    title = (isEdit ? '编辑学生' : '添加学生');
+                    const studentClasses = ClassAPI.getAll();
+                    if (isEdit) {
+                        const student = API.students.get(id);
+                        html = getStudentForm(student);
+                    } else {
+                        html = getStudentForm(null, studentClasses);
+                    }
+                    break;
+                case 'teacher':
+                    title = (isEdit ? '编辑老师' : '添加老师');
+                    if (isEdit) {
+                        const teacher = API.teachers.get(id);
+                        html = getTeacherForm(teacher);
+                    } else {
+                        html = getTeacherForm(null);
+                    }
+                    break;
+                case 'course':
+                    title = (isEdit ? '编辑课程' : '添加课程');
+                    const courseTeachers = API.teachers.list();
+                    if (isEdit) {
+                        const course = API.courses.get(id);
+                        html = getCourseForm(course, courseTeachers);
+                    } else {
+                        html = getCourseForm(null, courseTeachers);
+                    }
+                    break;
+                case 'work':
+                    title = (isEdit ? '编辑作品' : '添加作品');
+                    const workStudents = API.students.list();
+                    if (isEdit) {
+                        const work = API.works.get(id);
+                        html = getWorkForm(work, workStudents);
+                    } else {
+                        html = getWorkForm(null, workStudents);
+                    }
+                    break;
+            }
+            
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').innerHTML = html;
+            document.getElementById('modal-submit').textContent = submitText;
+            document.getElementById('modal-submit').onclick = function() { submitModal(type); };
+            document.getElementById('modal-overlay').classList.add('active');
+        }
+        
+        function getStudentForm(student, classes) {
+            classes = classes || ClassAPI.getAll();
+            const s = student || {};
+            return `<div class="form-group"><label class="form-label">用户名 *</label><input type="text" class="form-input" id="form-username" value="${s.username || ''}" ${student ? 'readonly' : ''}></div>
+                <div class="form-row"><div class="form-group"><label class="form-label">姓名 *</label><input type="text" class="form-input" id="form-name" value="${s.name || ''}"></div><div class="form-group"><label class="form-label">密码 ${student ? '(留空不修改)' : '*'}</label><input type="password" class="form-input" id="form-password" placeholder="${student ? '留空不修改' : '请输入密码'}"></div></div>
+                <div class="form-row"><div class="form-group"><label class="form-label">性别</label><select class="form-select" id="form-gender"><option value="">请选择</option><option value="男" ${s.gender === '男' ? 'selected' : ''}>男</option><option value="女" ${s.gender === '女' ? 'selected' : ''}>女</option></select></div><div class="form-group"><label class="form-label">年龄</label><input type="number" class="form-input" id="form-age" value="${s.age || ''}"></div></div>
+                <div class="form-row"><div class="form-group"><label class="form-label">电话</label><input type="text" class="form-input" id="form-phone" value="${s.phone || ''}"></div><div class="form-group"><label class="form-label">家长电话</label><input type="text" class="form-input" id="form-parent-phone" value="${s.parentPhone || ''}"></div></div>
+                <div class="form-group"><label class="form-label">班级</label><select class="form-select" id="form-class"><option value="">请选择班级</option>${classes.map(c => `<option value="${c.classId}" ${s.classId === c.classId ? 'selected' : ''}>${c.className}</option>`).join('')}</select></div>`;
+        }
+        
+        function getTeacherForm(teacher) {
+            const t = teacher || {};
+            return `<div class="form-group"><label class="form-label">用户名 *</label><input type="text" class="form-input" id="form-username" value="${t.username || ''}" ${teacher ? 'readonly' : ''}></div>
+                <div class="form-row"><div class="form-group"><label class="form-label">姓名 *</label><input type="text" class="form-input" id="form-name" value="${t.name || ''}"></div><div class="form-group"><label class="form-label">密码 ${teacher ? '(留空不修改)' : '*'}</label><input type="password" class="form-input" id="form-password" placeholder="${teacher ? '留空不修改' : '请输入密码'}"></div></div>
+                <div class="form-row"><div class="form-group"><label class="form-label">性别</label><select class="form-select" id="form-gender"><option value="">请选择</option><option value="男" ${t.gender === '男' ? 'selected' : ''}>男</option><option value="女" ${t.gender === '女' ? 'selected' : ''}>女</option></select></div><div class="form-group"><label class="form-label">电话</label><input type="text" class="form-input" id="form-phone" value="${t.phone || ''}"></div></div>
+                <div class="form-group"><label class="form-label">简介</label><textarea class="form-input" id="form-intro" rows="3" placeholder="请输入老师简介">${t.intro || ''}</textarea></div>`;
+        }
+        
+        function getCourseForm(course, teachers) {
+            teachers = teachers || API.teachers.list();
+            const c = course || {};
+            return `<div class="form-group"><label class="form-label">课程名称 *</label><input type="text" class="form-input" id="form-name" value="${c.name || ''}"></div>
+                <div class="form-group"><label class="form-label">描述</label><textarea class="form-input" id="form-description" rows="3" placeholder="请输入课程描述">${c.description || ''}</textarea></div>
+                <div class="form-row"><div class="form-group"><label class="form-label">分类</label><select class="form-select" id="form-category"><option value="scratch" ${c.category === 'scratch' ? 'selected' : ''}>Scratch</option><option value="python" ${c.category === 'python' ? 'selected' : ''}>Python</option><option value="web" ${c.category === 'web' ? 'selected' : ''}>Web前端</option><option value="lego" ${c.category === 'lego' ? 'selected' : ''}>乐高</option></select></div><div class="form-group"><label class="form-label">难度</label><select class="form-select" id="form-difficulty"><option value="入门" ${c.difficulty === '入门' ? 'selected' : ''}>入门</option><option value="基础" ${c.difficulty === '基础' ? 'selected' : ''}>基础</option><option value="进阶" ${c.difficulty === '进阶' ? 'selected' : ''}>进阶</option><option value="高级" ${c.difficulty === '高级' ? 'selected' : ''}>高级</option></select></div></div>
+                <div class="form-group"><label class="form-label">授课老师</label><select class="form-select" id="form-teacher"><option value="">请选择老师</option>${teachers.map(t => `<option value="${t.teacherId}" ${c.teacherId === t.teacherId ? 'selected' : ''}>${t.name}</option>`).join('')}</select></div>`;
+        }
+        
+        function getWorkForm(work, students) {
+            students = students || API.students.list();
+            const w = work || {};
+            return `<div class="form-group"><label class="form-label">作品名称 *</label><input type="text" class="form-input" id="form-name" value="${w.name || ''}"></div>
+                <div class="form-row"><div class="form-group"><label class="form-label">类型</label><select class="form-select" id="form-type"><option value="scratch" ${w.type === 'scratch' ? 'selected' : ''}>Scratch</option><option value="python" ${w.type === 'python' ? 'selected' : ''}>Python</option><option value="web" ${w.type === 'web' ? 'selected' : ''}>Web前端</option></select></div><div class="form-group"><label class="form-label">学生</label><select class="form-select" id="form-student"><option value="">请选择学生</option>${students.map(s => `<option value="${s.studentId}" ${w.studentId === s.studentId ? 'selected' : ''}>${s.name}</option>`).join('')}</select></div></div>
+                <div class="form-group"><label class="form-label">作品链接</label><input type="text" class="form-input" id="form-url" value="${w.url || ''}" placeholder="请输入作品链接"></div>`;
+        }
+        
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.remove('active');
+            currentEditId = null;
+        }
+        
+        function submitModal(type) {
+            let data = {};
+            
+            switch(type) {
+                case 'student':
+                    data = {
+                        username: document.getElementById('form-username').value,
+                        name: document.getElementById('form-name').value,
+                        gender: document.getElementById('form-gender').value,
+                        age: parseInt(document.getElementById('form-age').value) || null,
+                        phone: document.getElementById('form-phone').value,
+                        parentPhone: document.getElementById('form-parent-phone').value,
+                        classId: document.getElementById('form-class').value
+                    };
+                    if (!data.username || !data.name) { alert('请填写必填字段'); return; }
+                    const password = document.getElementById('form-password').value;
+                    if (password) data.password = password;
+                    if (currentEditId) { API.students.update(currentEditId, data); }
+                    else { if (!password) { alert('请输入密码'); return; } API.students.create(data); }
+                    renderStudentsTable();
+                    break;
+                case 'teacher':
+                    data = {
+                        username: document.getElementById('form-username').value,
+                        name: document.getElementById('form-name').value,
+                        gender: document.getElementById('form-gender').value,
+                        phone: document.getElementById('form-phone').value,
+                        intro: document.getElementById('form-intro').value
+                    };
+                    if (!data.username || !data.name) { alert('请填写必填字段'); return; }
+                    const teacherPassword = document.getElementById('form-password').value;
+                    if (teacherPassword) data.password = teacherPassword;
+                    if (currentEditId) { API.teachers.update(currentEditId, data); }
+                    else { if (!teacherPassword) { alert('请输入密码'); return; } API.teachers.create(data); }
+                    renderTeachersTable();
+                    break;
+                case 'course':
+                    data = {
+                        name: document.getElementById('form-name').value,
+                        description: document.getElementById('form-description').value,
+                        category: document.getElementById('form-category').value,
+                        difficulty: document.getElementById('form-difficulty').value,
+                        teacherId: document.getElementById('form-teacher').value
+                    };
+                    if (!data.name) { alert('请填写课程名称'); return; }
+                    if (currentEditId) { API.courses.update(currentEditId, data); }
+                    else { API.courses.create(data); }
+                    renderCoursesTable();
+                    loadDashboardStats();
+                    break;
+                case 'work':
+                    data = {
+                        name: document.getElementById('form-name').value,
+                        type: document.getElementById('form-type').value,
+                        studentId: document.getElementById('form-student').value,
+                        url: document.getElementById('form-url').value
+                    };
+                    if (!data.name || !data.studentId) { alert('请填写必填字段'); return; }
+                    const student = API.students.get(data.studentId);
+                    data.studentName = student ? student.name : '';
+                    if (currentEditId) { API.works.update(currentEditId, data); }
+                    else { API.works.create(data); }
+                    renderWorksTable();
+                    loadDashboardStats();
+                    break;
+            }
+            
+            closeModal();
+            loadDashboardStats();
+        }
+        
+        function editItem(type, id) {
+            showModal(type, id);
+        }
+        
+        function deleteItem(type, id) {
+            currentDeleteId = id;
+            currentDeleteType = type;
+            document.getElementById('confirm-message').textContent = '确定要删除该项吗？此操作无法撤销。';
+            document.getElementById('confirm-modal-overlay').classList.add('active');
+        }
+        
+        function closeConfirmModal() {
+            document.getElementById('confirm-modal-overlay').classList.remove('active');
+            currentDeleteId = null;
+            currentDeleteType = null;
+        }
+        
+        function confirmDelete() {
+            if (!currentDeleteId || !currentDeleteType) return;
+            
+            switch(currentDeleteType) {
+                case 'student': API.students.delete(currentDeleteId); renderStudentsTable(); break;
+                case 'teacher': API.teachers.delete(currentDeleteId); renderTeachersTable(); break;
+                case 'course': API.courses.delete(currentDeleteId); renderCoursesTable(); break;
+                case 'work': API.works.delete(currentDeleteId); renderWorksTable(); break;
+            }
+            
+            loadDashboardStats();
+            closeConfirmModal();
+        }
+        
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+        
+        function handleLogout() { 
+            Auth.clearAuth(); 
+            window.location.href = 'index.html'; 
+        }
+        
+        // Initialize - 使用新的 API 客户端
+        window.onload = function() {
+            // Check login
+            if (Auth.isLoggedIn()) {
+                const user = Auth.getUser();
+                if (!user) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+                if (user.role !== 'admin') {
+                    if (user.role === 'teacher') window.location.href = 'dashboard.html';
+                    else window.location.href = 'index.html';
+                }
+                // Update user info
+                document.getElementById('user-name').textContent = user.nickname || user.username;
+                document.getElementById('user-avatar').textContent = (user.nickname || user.username).charAt(0);
+            } else {
+                window.location.href = 'index.html';
+            }
+            
+            // Setup hash routing
+            window.addEventListener('hashchange', handleHashChange);
+            handleHashChange();
+        };
+    </script>
+</body>
+</html>

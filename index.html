@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>欢迎来到乐造AI - 登录</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            overflow-x: hidden;
+        }
+        
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+        
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(102,126,234,0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(118,75,162,0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(240,147,251,0.1) 0%, transparent 40%);
+            animation: bg-move 20s ease-in-out infinite;
+        }
+        
+        @keyframes bg-move {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(2%, 2%) rotate(1deg); }
+            66% { transform: translate(-2%, -1%) rotate(-1deg); }
+        }
+        
+        /* Floating particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 50%;
+            animation: float-particle 15s infinite;
+        }
+        
+        .particle:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; animation-duration: 12s; }
+        .particle:nth-child(2) { left: 20%; top: 80%; animation-delay: 2s; animation-duration: 14s; }
+        .particle:nth-child(3) { left: 30%; top: 40%; animation-delay: 4s; animation-duration: 16s; }
+        .particle:nth-child(4) { left: 40%; top: 60%; animation-delay: 1s; animation-duration: 13s; }
+        .particle:nth-child(5) { left: 50%; top: 30%; animation-delay: 3s; animation-duration: 15s; }
+        .particle:nth-child(6) { left: 60%; top: 70%; animation-delay: 5s; animation-duration: 11s; }
+        .particle:nth-child(7) { left: 70%; top: 50%; animation-delay: 2s; animation-duration: 17s; }
+        .particle:nth-child(8) { left: 80%; top: 20%; animation-delay: 4s; animation-duration: 14s; }
+        .particle:nth-child(9) { left: 90%; top: 90%; animation-delay: 1s; animation-duration: 12s; }
+        .particle:nth-child(10) { left: 15%; top: 50%; animation-delay: 3s; animation-duration: 16s; }
+        .particle:nth-child(11) { left: 85%; top: 40%; animation-delay: 2s; animation-duration: 15s; }
+        .particle:nth-child(12) { left: 45%; top: 85%; animation-delay: 5s; animation-duration: 13s; }
+        
+        @keyframes float-particle {
+            0% { transform: translateY(0) scale(1); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) scale(0.5); opacity: 0; }
+        }
+        
+        /* Character */
+        .character-container {
+            position: relative;
+            width: 300px;
+            height: 400px;
+        }
+        
+        .character {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .character-body {
+            width: 140px;
+            height: 200px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            border-radius: 70px 70px 50px 50px;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(102,126,234,0.4);
+        }
+        
+        .character-head {
+            position: absolute;
+            top: -70px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(180deg, #ffd5c8 0%, #f5b8a8 100%);
+            border-radius: 50%;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .character-hair {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 110px;
+            height: 40px;
+            background: #2d3748;
+            border-radius: 50px 50px 0 0;
+        }
+        
+        .character-hair::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 15px;
+            height: 15px;
+            background: #ffd700;
+            border-radius: 50%;
+            box-shadow: 0 0 20px #ffd700, 0 0 40px #ffd700;
+            animation: glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 15px #ffd700, 0 0 30px #ffd700; }
+            50% { box-shadow: 0 0 25px #ffd700, 0 0 50px #ffd700, 0 0 70px #ffd700; }
+        }
+        
+        .character-eyes {
+            position: absolute;
+            top: 35px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+        }
+        
+        .eye {
+            width: 16px;
+            height: 20px;
+            background: #1a202c;
+            border-radius: 50%;
+            position: relative;
+            animation: blink 4s ease-in-out infinite;
+        }
+        
+        .eye::before {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+            top: 4px;
+            left: 3px;
+        }
+        
+        @keyframes blink {
+            0%, 45%, 55%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.1); }
+        }
+        
+        .character-cheeks {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 40px;
+        }
+        
+        .cheek {
+            width: 15px;
+            height: 10px;
+            background: rgba(255,150,150,0.5);
+            border-radius: 50%;
+        }
+        
+        .character-mouth {
+            position: absolute;
+            top: 65px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 8px;
+            background: #e88a8a;
+            border-radius: 0 0 10px 10px;
+            transition: all 0.3s ease;
+        }
+        
+        /* Arms */
+        .character-arms {
+            position: absolute;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .arm {
+            width: 25px;
+            height: 65px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform-origin: top center;
+        }
+        
+        .arm.left { transform: rotate(25deg); }
+        .arm.right { transform: rotate(-25deg); }
+        
+        /* Focus states - character reacts to input */
+        .form-input:focus ~ .character .arm.left {
+            transform: rotate(55deg) translateY(-15px);
+        }
+        
+        .form-input:focus ~ .character .arm.right {
+            transform: rotate(-55deg) translateY(-15px);
+        }
+        
+        .form-input:focus ~ .character .character-mouth {
+            width: 25px;
+            height: 12px;
+        }
+        
+        .form-input:focus ~ .character .eye {
+            height: 24px;
+        }
+        
+        /* Login form */
+        .login-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            font-size: 16px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            transition: all 0.3s;
+            outline: none;
+        }
+        
+        .form-input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .form-input:focus {
+            border-color: #667eea;
+            background: rgba(255,255,255,0.15);
+            box-shadow: 0 0 0 4px rgba(102,126,234,0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102,126,234,0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        
+        .animate-slide-in {
+            animation: slideIn 0.8s ease forwards;
+        }
+        
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center">
+    <!-- Background -->
+    <div class="bg-animation"></div>
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+    
+    <div class="relative z-10 w-full max-w-6xl px-6 py-12">
+        <div class="flex items-center justify-between gap-12">
+            <!-- Left Side - Character -->
+            <div class="hidden lg:flex flex-col items-center animate-fade-in-up">
+                <h1 class="text-5xl font-bold text-white mb-4 text-center" style="font-family: 'Space Grotesk', sans-serif;">
+                    欢迎来到<br><span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">乐造AI</span>
+                </h1>
+                <p class="text-white/60 text-lg mb-8">智能教育 · 创造未来</p>
+                
+                <!-- Character -->
+                <div class="character-container" id="characterArea">
+                    <div class="character">
+                        <div class="character-head">
+                            <div class="character-hair"></div>
+                            <div class="character-eyes">
+                                <div class="eye"></div>
+                                <div class="eye"></div>
+                            </div>
+                            <div class="character-cheeks">
+                                <div class="cheek"></div>
+                                <div class="cheek"></div>
+                            </div>
+                            <div class="character-mouth"></div>
+                        </div>
+                        <div class="character-body">
+                            <div class="character-arms">
+                                <div class="arm left"></div>
+                                <div class="arm right"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Side - Login Form -->
+            <div class="w-full max-w-md mx-auto animate-slide-in delay-200">
+                <div class="login-card p-8">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-bold text-white mb-2">🎓 乐造AI</h2>
+                        <p class="text-white/60">教务管理平台</p>
+                    </div>
+                    
+                    <div class="error bg-red-500/20 text-red-200 px-4 py-3 rounded-xl mb-6 hidden" id="error"></div>
+                    
+                    <form onsubmit="handleLogin(event)" class="space-y-5">
+                        <div>
+                            <label class="block text-white/80 text-sm font-medium mb-2">用户名</label>
+                            <input type="text" id="username" required placeholder="请输入用户名" 
+                                class="form-input" autocomplete="username">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-white/80 text-sm font-medium mb-2">密码</label>
+                            <input type="password" id="password" required placeholder="请输入密码" 
+                                class="form-input" autocomplete="current-password">
+                        </div>
+                        
+                        <button type="submit" class="btn-primary" id="loginBtn">
+                            登 录
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/api-client.js"></script>
+    <script>
+        function showError(msg) {
+            const el = document.getElementById('error');
+            el.textContent = msg;
+            el.classList.remove('hidden');
+        }
+        
+        function hideError() {
+            document.getElementById('error').classList.add('hidden');
+        }
+        
+        // Character reaction on input focus
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const character = document.querySelector('.character');
+        
+        [usernameInput, passwordInput].forEach(input => {
+            input.addEventListener('focus', () => {
+                const arms = document.querySelectorAll('.arm');
+                const mouth = document.querySelector('.character-mouth');
+                const eyes = document.querySelectorAll('.eye');
+                
+                arms.forEach(arm => arm.style.transform = arm.classList.contains('left') 
+                    ? 'rotate(55deg) translateY(-15px)' 
+                    : 'rotate(-55deg) translateY(-15px)');
+                mouth.style.width = '25px';
+                mouth.style.height = '12px';
+                eyes.forEach(eye => eye.style.height = '24px');
+            });
+            
+            input.addEventListener('blur', () => {
+                const arms = document.querySelectorAll('.arm');
+                const mouth = document.querySelector('.character-mouth');
+                const eyes = document.querySelectorAll('.eye');
+                
+                arms.forEach(arm => arm.style.transform = arm.classList.contains('left') 
+                    ? 'rotate(25deg)' 
+                    : 'rotate(-25deg)');
+                mouth.style.width = '12px';
+                mouth.style.height = '8px';
+                eyes.forEach(eye => eye.style.height = '20px');
+            });
+        });
+        
+        async function handleLogin(e) {
+            e.preventDefault();
+            hideError();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('loginBtn');
+            
+            if (!username || !password) {
+                showError('请输入用户名和密码');
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.textContent = '登录中...';
+            
+            try {
+                // 使用新的 API 客户端调用后端登录 API
+                const result = await APIClient.auth.login(username, password);
+                
+                if (result.token) {
+                    // 检查 URL 参数是否有跳转目标
+                    const params = new URLSearchParams(window.location.search);
+                    const redirect = params.get('redirect');
+                    
+                    if (redirect) {
+                        location.href = redirect;
+                    } else {
+                        switch(result.user.role) {
+                            case 'admin':
+                                location.href = 'admin-dashboard.html';
+                                break;
+                            case 'teacher':
+                                location.href = 'dashboard.html';
+                                break;
+                            case 'student':
+                                location.href = 'student-index.html';
+                                break;
+                            default:
+                                location.href = 'dashboard.html';
+                        }
+                    }
+                } else {
+                    showError(result.error || '登录失败');
+                }
+            } catch (err) {
+                showError(err.message || '登录出错，请重试');
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '登 录';
+            }
+        }
+        
+        window.onload = function() {
+            // 使用新的 Auth 模块检查登录状态
+            if (Auth.isLoggedIn()) {
+                const user = Auth.getUser();
+                switch(user.role) {
+                    case 'admin':
+                        location.href = 'admin-dashboard.html';
+                        break;
+                    case 'teacher':
+                        location.href = 'dashboard.html';
+                        break;
+                    case 'student':
+                        location.href = 'student-index.html';
+                        break;
+                    default:
+                        location.href = 'dashboard.html';
+                }
+            }
+        };
+    </script>
+</body>
+</html>

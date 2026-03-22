@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scratch编程 - 乐造AI</title>
+    <style>
+        * { margin: 0; padding: 0; }
+        html, body { height: 100%; overflow: hidden; }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 50px;
+        }
+        .header h1 { font-size: 16px; }
+        
+        .iframe-container {
+            height: calc(100vh - 50px);
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🖥️ Scratch编程 - 乐造AI</h1>
+    </div>
+    
+    <div class="iframe-container">
+        <iframe src="scratch3/simple-editor.html"></iframe>
+    </div>
+    
+    <script src="js/auth.js"></script>
+    <script src="js/api-client.js"></script>
+    <script>
+        if (!Auth.isLoggedIn()) {
+            location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

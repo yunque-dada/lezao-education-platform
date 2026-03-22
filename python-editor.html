@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python编辑器 - 乐造AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #1e1e1e;
+            --bg-darker: #121212;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            min-height: 100vh;
+            color: #e5e7eb;
+        }
+        
+        /* Header */
+        .header {
+            background: var(--bg-darker);
+            border-bottom: 1px solid #333;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 50px;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #3776ab, #ffd43b);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .page-title {
+            font-size: 14px;
+            color: #9ca3af;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .btn-secondary {
+            background: #374151;
+            color: #e5e7eb;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        
+        /* Main */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 50px);
+        }
+        
+        /* Editor Panel */
+        .editor-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #333;
+        }
+        
+        .panel-header {
+            background: var(--bg-darker);
+            padding: 8px 14px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .panel-title {
+            font-size: 12px;
+            font-weight: 500;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .editor-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        /* Line Numbers */
+        .line-numbers {
+            width: 50px;
+            background: #1a1a1a;
+            padding: 12px 8px;
+            text-align: right;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #6b7280;
+            user-select: none;
+            overflow: hidden;
+        }
+        
+        .line-number {
+            height: 20.8px;
+        }
+        
+        /* Code Editor */
+        .code-editor {
+            flex: 1;
+            background: #1e1e1e;
+            border: none;
+            resize: none;
+            padding: 12px;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #d4d4d4;
+            outline: none;
+            overflow: auto;
+        }
+        
+        .code-editor::placeholder {
+            color: #6b7280;
+        }
+        
+        /* Output Panel */
+        .output-panel {
+            width: 45%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .output-container {
+            flex: 1;
+            background: #0d1117;
+            padding: 12px;
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .output-line {
+            margin-bottom: 2px;
+        }
+        
+        .output-error {
+            color: #f87171;
+        }
+        
+        .output-success {
+            color: #4ade80;
+        }
+        
+        .output-info {
+            color: #60a5fa;
+        }
+        
+        .output-empty {
+            color: #6b7280;
+            font-style: italic;
+        }
+        
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #374151;
+            border-top-color: #2563eb;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* File Name */
+        .file-name {
+            font-size: 13px;
+            color: #e5e7eb;
+            padding: 6px 14px;
+            background: #1e1e1e;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .file-name input {
+            background: transparent;
+            border: none;
+            color: #e5e7eb;
+            font-size: 13px;
+            outline: none;
+            width: 200px;
+        }
+        
+        /* Tips */
+        .tips {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 12px;
+            color: #9ca3af;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .tips-title {
+            font-weight: 600;
+            color: #e5e7eb;
+            margin-bottom: 6px;
+        }
+        
+        /* Back Button */
+        .back-btn {
+            color: #9ca3af;
+            text-decoration: none;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: color 0.2s;
+        }
+        
+        .back-btn:hover {
+            color: #e5e7eb;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <a href="student-index.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                返回
+            </a>
+            <div class="logo">
+                <div class="logo-icon">🐍</div>
+                <span>Python编辑器</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="btn btn-secondary" onclick="clearOutput()">
+                <i class="fas fa-trash-alt"></i>
+                清空输出
+            </button>
+            <button class="btn btn-secondary" onclick="saveCode()">
+                <i class="fas fa-save"></i>
+                保存
+            </button>
+            <button class="btn btn-success" onclick="runCode()" id="runBtn">
+                <i class="fas fa-play"></i>
+                运行
+            </button>
+        </div>
+    </header>
+    
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Editor Panel -->
+        <div class="editor-panel">
+            <div class="panel-header">
+                <span class="panel-title">
+                    <i class="fas fa-code"></i>
+                    代码编辑器
+                </span>
+                <span style="font-size: 11px; color: #6b7280;">Python 3.x</span>
+            </div>
+            <div class="file-name">
+                <i class="fas fa-file-python" style="color: #3776ab;"></i>
+                <input type="text" id="fileName" value="untitled.py" placeholder="文件名.py">
+            </div>
+            <div class="editor-container">
+                <div class="line-numbers" id="lineNumbers">
+                    <div class="line-number">1</div>
+                </div>
+                <textarea class="code-editor" id="codeEditor" 
+                    placeholder="# 在这里编写Python代码
+print('Hello, World!')" 
+                    spellcheck="false"></textarea>
+            </div>
+        </div>
+        
+        <!-- Output Panel -->
+        <div class="output-panel">
+            <div class="panel-header">
+                <span class="panel-title">
+                    <i class="fas fa-terminal"></i>
+                    输出
+                </span>
+                <span style="font-size: 11px; color: #6b7280;" id="runStatus"></span>
+            </div>
+            <div class="output-container" id="output">
+                <div class="output-empty">点击"运行"按钮执行代码...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tips -->
+    <div class="tips">
+        <div class="tips-title">💡 使用提示</div>
+        <div>• 使用 print() 输出结果</div>
+        <div>• 支持基本的 Python 语法</div>
+        <div>• 代码会自动保存到本地</div>
+    </div>
+    
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/feishu-api.js"></script>
+    <script src="js/api-client.js"></script>
+    <script>
+        const WorksAPI = HybridAPI.works;
+        const editor = document.getElementById('codeEditor');
+        const lineNumbers = document.getElementById('lineNumbers');
+        const output = document.getElementById('output');
+        const runBtn = document.getElementById('runBtn');
+        const fileNameInput = document.getElementById('fileName');
+        
+        // 检查登录 - 使用新的 API 客户端
+        if (!Auth.isLoggedIn()) {
+            location.href = 'index.html';
+        }
+        
+        // 初始化行号
+        function updateLineNumbers() {
+            const lines = editor.value.split('\n').length;
+            let html = '';
+            for (let i = 1; i <= Math.max(lines, 20); i++) {
+                html += `<div class="line-number">${i}</div>`;
+            }
+            lineNumbers.innerHTML = html;
+        }
+        
+        // 监听编辑器输入
+        editor.addEventListener('input', updateLineNumbers);
+        editor.addEventListener('scroll', function() {
+            lineNumbers.scrollTop = editor.scrollTop;
+        });
+        
+        // 初始化
+        updateLineNumbers();
+        
+        // 加载保存的代码
+        function loadSavedCode() {
+            const studentId = JSON.parse(localStorage.getItem('lezhao_auth') || '{}').userId;
+            if (studentId) {
+                const saved = localStorage.getItem('lezhao_code_' + studentId);
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    editor.value = data.code || '';
+                    fileNameInput.value = data.fileName || 'untitled.py';
+                    updateLineNumbers();
+                }
+            }
+        }
+        
+        // 保存代码
+        async function saveCode() {
+            const auth = JSON.parse(localStorage.getItem('lezhao_auth') || '{}');
+            const studentId = auth.userId;
+            if (studentId) {
+                const data = {
+                    code: editor.value,
+                    fileName: fileNameInput.value,
+                    savedAt: Date.now()
+                };
+                localStorage.setItem('lezhao_code_' + studentId, JSON.stringify(data));
+                
+                // 保存为作品
+                const workName = fileNameInput.value.replace('.py', '') || 'Python作品';
+                const existingWorks = JSON.parse(localStorage.getItem('lezhao_works_' + studentId) || '[]');
+                
+                // 检查是否已存在
+                const existingIndex = existingWorks.findIndex(w => w.type === 'python');
+                if (existingIndex >= 0) {
+                    existingWorks[existingIndex].code = editor.value;
+                    existingWorks[existingIndex].updatedAt = Date.now();
+                } else {
+                    const newWork = {
+                        workId: 'work-' + Date.now(),
+                        title: workName,
+                        type: 'python',
+                        studentId: studentId,
+                        studentName: auth.name || auth.username,
+                        content: editor.value,
+                        status: 'pending',
+                        createdAt: Date.now()
+                    };
+                    
+                    existingWorks.push(newWork);
+                    localStorage.setItem('lezhao_works_' + studentId, JSON.stringify(existingWorks));
+                    
+                    // 同时保存到飞书
+                    try {
+                        await WorksAPI.create(newWork);
+                        showOutput('success', '✅ 代码已保存到云端！');
+                    } catch(e) {
+                        showOutput('success', '✅ 代码已保存！（本地）');
+                    }
+            }
+        }
+        
+        // 清空输出
+        function clearOutput() {
+            output.innerHTML = '<div class="output-empty">点击"运行"按钮执行代码...</div>';
+        }
+        
+        // 显示输出
+        function showOutput(type, text) {
+            const lines = text.split('\n');
+            let html = '';
+            lines.forEach(line => {
+                const lineClass = type === 'error' ? 'output-error' : (type === 'success' ? 'output-success' : 'output-info');
+                html += `<div class="output-line ${lineClass}">${escapeHtml(line)}</div>`;
+            });
+            output.innerHTML = html;
+        }
+        
+        // HTML转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // 运行代码（使用Pyodide）
+        async function runCode() {
+            const code = editor.value.trim();
+            if (!code) {
+                showOutput('info', '请先输入代码');
+                return;
+            }
+            
+            runBtn.disabled = true;
+            runBtn.innerHTML = '<span class="loading"></span> 运行中...';
+            
+            try {
+                // 加载Pyodide
+                let pyodide = window.pyodide;
+                if (!pyodide) {
+                    showOutput('info', '正在加载Python环境...');
+                    
+                    // 加载Pyodide脚本
+                    await loadScript('https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js');
+                    
+                    pyodide = await window.loadPyodide({
+                        indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/'
+                    });
+                    window.pyodide = pyodide;
+                }
+                
+                // 重定向stdout
+                pyodide.runPython(`
+import sys
+from io import StringIO
+sys.stdout = StringIO()
+sys.stderr = StringIO()
+                `);
+                
+                // 运行代码
+                try {
+                    pyodide.runPython(code);
+                    
+                    // 获取输出
+                    const stdout = pyodide.runPython('sys.stdout.getvalue()');
+                    const stderr = pyodide.runPython('sys.stderr.getvalue()');
+                    
+                    if (stdout) {
+                        showOutput('success', stdout);
+                    } else if (stderr) {
+                        showOutput('error', stderr);
+                    } else {
+                        showOutput('info', '✅ 代码执行完成（无输出）');
+                    }
+                } catch (execError) {
+                    showOutput('error', execError.message);
+                }
+            } catch (error) {
+                // 如果Pyodide加载失败，使用模拟执行
+                simulateExecution(code);
+            }
+            
+            runBtn.disabled = false;
+            runBtn.innerHTML = '<i class="fas fa-play"></i> 运行';
+        }
+        
+        // 加载脚本
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+        
+        // 模拟执行（当Pyodide不可用时）
+        function simulateExecution(code) {
+            const lines = code.split('\n');
+            let outputLines = [];
+            
+            // 简单的模拟执行器
+            for (let line of lines) {
+                line = line.trim();
+                
+                // 检测print语句
+                const printMatch = line.match(/^print\((.*)\)$/);
+                if (printMatch) {
+                    let content = printMatch[1];
+                    // 处理字符串
+                    if ((content.startsWith('"') && content.endsWith('"')) || 
+                        (content.startsWith("'") && content.endsWith("'"))) {
+                        outputLines.push(content.slice(1, -1));
+                    } else {
+                        // 尝试作为表达式计算
+                        try {
+                            // 简单的数学运算
+                            if (/^[\d\s+\-*/%().]+$/.test(content)) {
+                                const result = Function('"use strict";return (' + content + ')')();
+                                outputLines.push(result);
+                            } else {
+                                outputLines.push(content);
+                            }
+                        } catch {
+                            outputLines.push(content);
+                        }
+                    }
+                }
+            }
+            
+            if (outputLines.length > 0) {
+                showOutput('success', outputLines.join('\n'));
+            } else {
+                showOutput('info', '✅ 代码执行完成（无输出）\n\n💡 提示：使用 print() 函数可以输出结果');
+            }
+        }
+        
+        // 加载保存的代码
+        loadSavedCode();
+        
+        // 快捷键
+        editor.addEventListener('keydown', function(e) {
+            // Ctrl+S 保存
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveCode();
+            }
+            // Ctrl+Enter 运行
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                runCode();
+            }
+            // Tab缩进
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = editor.selectionStart;
+                const end = editor.selectionEnd;
+                editor.value = editor.value.substring(0, start) + '    ' + editor.value.substring(end);
+                editor.selectionStart = editor.selectionEnd = start + 4;
+                updateLineNumbers();
+            }
+        });
+    </script>
+</body>
+</html>
