@@ -170,6 +170,33 @@ app.get('/health', async (req, res) => {
 
 // 健康检查
 app.get('/api/health', (req, res) => res.json({status:'ok', time:new Date()}));
+
+// 调试端点：查看用户列表
+app.get('/api/debug/users', async (req, res) => {
+  if (!pool) return res.json({error:'无数据库'});
+  try {
+    const result = await pool.query('SELECT id, username, role, nickname FROM users');
+    res.json({users: result.rows});
+  } catch(e) {
+    res.json({error: e.message});
+  }
+});
+
+// 调试端点：创建测试用户
+app.post('/api/debug/create-user', async (req, res) => {
+  if (!pool) return res.status(500).json({error:'无数据库'});
+  try {
+    const {username, password, role='student', nickname} = req.body;
+    const hashed = await bcrypt.hash(password, 10);
+    const result = await pool.query(
+      'INSERT INTO users (username, password, role, nickname) VALUES ($1, $2, $3, $4) RETURNING id, username',
+      [username, hashed, role, nickname||username]
+    );
+    res.json({message:'创建成功', user: result.rows[0]});
+  } catch(e) {
+    res.status(500).json({error: e.message});
+  }
+});
 app.get('/', (req, res) => res.send('Education Platform API Running'));
 
 // 注册
