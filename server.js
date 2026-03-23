@@ -182,15 +182,16 @@ app.get('/api/debug/users', async (req, res) => {
   }
 });
 
-// 调试端点：创建测试用户
-app.post('/api/debug/create-user', async (req, res) => {
+// 调试端点：创建测试用户（GET方式）
+app.get('/api/debug/create-user', async (req, res) => {
   if (!pool) return res.status(500).json({error:'无数据库'});
   try {
-    const {username, password, role='student', nickname} = req.body;
+    const {username, password, role='student', nickname} = req.query;
+    if (!username || !password) return res.status(400).json({error:'需要username和password参数'});
     const hashed = await bcrypt.hash(password, 10);
     const result = await pool.query(
       'INSERT INTO users (username, password, role, nickname) VALUES ($1, $2, $3, $4) RETURNING id, username',
-      [username, hashed, role, nickname||username]
+      [username, hashed, role||'student', nickname||username]
     );
     res.json({message:'创建成功', user: result.rows[0]});
   } catch(e) {
