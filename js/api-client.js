@@ -263,7 +263,63 @@ const APIClient = {
     enrollments: EnrollmentAPI,
     projects: ProjectAPI,
     admin: AdminAPI,
-    auth: Auth
+    user: Auth
+};
+
+// ========== 全局 API 别名（兼容旧代码） ==========
+// 为前端页面提供统一的 API 访问入口
+const API = {
+    students: {
+        list: () => {
+            const data = localStorage.getItem('lezhao_students');
+            return data ? JSON.parse(data) : [];
+        },
+        create: (data) => {
+            const students = API.students.list();
+            const newStudent = { studentId: 'student-' + Date.now(), ...data };
+            students.push(newStudent);
+            localStorage.setItem('lezhao_students', JSON.stringify(students));
+            return { success: true, student: newStudent };
+        },
+        delete: (id) => {
+            let students = API.students.list();
+            students = students.filter(s => s.studentId !== id);
+            localStorage.setItem('lezhao_students', JSON.stringify(students));
+            return { success: true };
+        },
+        get: (id) => {
+            const students = API.students.list();
+            return students.find(s => s.studentId === id) || null;
+        }
+    },
+    works: {
+        list: () => {
+            const data = localStorage.getItem('lezhao_works');
+            return data ? JSON.parse(data) : [];
+        },
+        create: (data) => {
+            const works = API.works.list();
+            const newWork = { workId: 'work-' + Date.now(), ...data };
+            works.push(newWork);
+            localStorage.setItem('lezhao_works', JSON.stringify(works));
+            return { success: true, work: newWork };
+        },
+        update: (id, data) => {
+            let works = API.works.list();
+            const index = works.findIndex(w => w.workId === id);
+            if (index !== -1) {
+                works[index] = { ...works[index], ...data };
+                localStorage.setItem('lezhao_works', JSON.stringify(works));
+            }
+            return { success: true };
+        }
+    },
+    courses: {
+        list: () => {
+            const data = localStorage.getItem('lezhao_courses');
+            return data ? JSON.parse(data) : [];
+        }
+    }
 };
 
 // 兼容旧版 API（localStorage）- 保留用于降级或迁移过渡
